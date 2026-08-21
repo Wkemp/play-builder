@@ -292,19 +292,18 @@ for (const system of PLAY_SYSTEMS) {
   }
 }
 
-/** Gives a play an illustrative ball path across its 3 frames: with the
- * passer at Pre-Serve, rising toward the setter at the middle step, then
- * at the point of contact with whichever role is the primary attacker for
- * that play's final step. Just a starting point - drag it anywhere. */
+/** Gives a play an illustrative ball path across its 3 frames: dropped
+ * near the passer at Pre-Serve, attached to the setter's hands at the
+ * middle step, then attached to whichever role is the primary attacker
+ * for that play's final step. Just a starting point - drag or reattach it
+ * anywhere. */
 function setBallPath(playId, attackerId) {
   const p = findPrebuiltPlay(playId);
   if (!p) return;
   const [f0, f1, f2] = p.frames;
   f0.ball = { col: 6, row: 5 };
-  const setterCell = f1.positions.S;
-  f1.ball = setterCell ? { col: setterCell.col, row: Math.max(0, setterCell.row - 1) } : null;
-  const attackerCell = f2.positions[attackerId];
-  f2.ball = attackerCell ? { col: attackerCell.col, row: 0 } : null;
+  if (f1.positions.S) f1.ball = { attachedTo: 'S' };
+  if (f2.positions[attackerId]) f2.ball = { attachedTo: attackerId };
 }
 
 /** Tags a frame with the setter's alternate reads for that step. */

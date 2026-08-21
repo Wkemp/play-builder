@@ -44,20 +44,28 @@ function MiniCourt({ frame, roster, showBall }) {
             </div>
           );
         })}
-        {frame.ball && showBall && (
-          <div
-            className="absolute"
-            style={{
-              left: `${gridToFraction(frame.ball).x * 100}%`,
-              top: `${gridToFraction(frame.ball).y * 100}%`,
-              width: `${(100 / GRID_COLS) * 0.6}%`,
-              height: `${(100 / GRID_ROWS) * 0.6}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <BallGlyph className="w-full h-full" />
-          </div>
-        )}
+        {showBall && frame.ball && (() => {
+          const targetCell = frame.ball.attachedTo ? frame.positions[frame.ball.attachedTo] : frame.ball;
+          if (!targetCell) return null;
+          const { x, y } = gridToFraction(targetCell);
+          // Attached: nudge up half a cell so the ball sits at the puck's
+          // top edge rather than dead-center on top of the number.
+          const yOffset = frame.ball.attachedTo ? 0.5 / GRID_ROWS : 0;
+          return (
+            <div
+              className="absolute"
+              style={{
+                left: `${x * 100}%`,
+                top: `${(y - yOffset) * 100}%`,
+                width: `${(100 / GRID_COLS) * 0.55}%`,
+                height: `${(100 / GRID_ROWS) * 0.55}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <BallGlyph className="w-full h-full" />
+            </div>
+          );
+        })()}
       </div>
       {frame.notes && (
         <div className="mt-1.5 print:mt-2 text-[10px] print:text-[12px] text-gray-700 leading-snug whitespace-pre-wrap">
