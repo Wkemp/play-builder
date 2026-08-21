@@ -12,6 +12,10 @@ import {
   updateFrameNotes,
   updatePlaySystem,
   updatePositionInFrame,
+  updateBallInFrame,
+  clearBallInFrame,
+  addOption,
+  removeOption,
 } from './lib/plays';
 import CourtDiagram from './components/CourtDiagram';
 import FrameBar from './components/FrameBar';
@@ -19,6 +23,8 @@ import PlayLibrary from './components/PlayLibrary';
 import RosterEditor from './components/RosterEditor';
 import DataTransfer from './components/DataTransfer';
 import PlayCheatSheet from './components/PlayCheatSheet';
+import BallGlyph from './components/BallGlyph';
+import SetterOptions from './components/SetterOptions';
 
 const FIRST_PREBUILT = PLAY_SYSTEMS[0].plays[0];
 
@@ -31,6 +37,7 @@ export default function App() {
   const [showRoster, setShowRoster] = useState(false);
   const [showCheatSheet, setShowCheatSheet] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage('pb.sidebarCollapsed', () => false);
+  const [showBall, setShowBall] = useLocalStorage('pb.showBall', () => true);
   const [renamingPlay, setRenamingPlay] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
 
@@ -138,6 +145,26 @@ export default function App() {
     updateCustomPlay(updateFrameNotes(activePlay, frame.id, notes));
   }
 
+  function handlePlaceBall(cell) {
+    if (!activeIsCustom) return;
+    updateCustomPlay(updateBallInFrame(activePlay, frame.id, cell));
+  }
+
+  function handleRemoveBall() {
+    if (!activeIsCustom) return;
+    updateCustomPlay(clearBallInFrame(activePlay, frame.id));
+  }
+
+  function handleAddOption(opt) {
+    if (!activeIsCustom) return;
+    updateCustomPlay(addOption(activePlay, frame.id, opt));
+  }
+
+  function handleRemoveOption(optionId) {
+    if (!activeIsCustom) return;
+    updateCustomPlay(removeOption(activePlay, frame.id, optionId));
+  }
+
   function commitPlayRename() {
     if (nameDraft.trim()) updateCustomPlay({ ...activePlay, name: nameDraft.trim() });
     setRenamingPlay(false);
@@ -157,6 +184,17 @@ export default function App() {
       <header className="flex items-center justify-between gap-3 mb-5 flex-wrap">
         <h1 className="font-display font-bold text-2xl text-chalk tracking-wide">Play Builder</h1>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowBall((v) => !v)}
+            aria-pressed={showBall}
+            className={`flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border transition-colors ${
+              showBall
+                ? 'bg-gold text-ink border-gold'
+                : 'bg-ink-raised text-chalk-dim border-ink-line hover:border-gold/50 hover:text-chalk'
+            }`}
+          >
+            <BallGlyph className="w-3.5 h-3.5" /> Ball
+          </button>
           <button
             onClick={() => setShowRoster(true)}
             className="flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-ink-line bg-ink-raised text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors"
@@ -292,6 +330,11 @@ export default function App() {
             roster={appData.roster}
             editing={editing && activeIsCustom}
             onPlacePosition={handlePlacePosition}
+            ball={frame.ball || null}
+            showBall={showBall}
+            onPlaceBall={handlePlaceBall}
+            onRemoveBall={handleRemoveBall}
+            options={frame.options || []}
           />
 
           <div className="mt-5">
@@ -326,11 +369,28 @@ export default function App() {
               <p className="text-xs text-chalk-dim/50 italic">No notes for this step.</p>
             )}
           </div>
+
+          <div className="mt-4">
+            <label className="block text-[10px] uppercase tracking-widest text-chalk-dim/70 font-display mb-1.5">
+              Setter Options for &ldquo;{frame.label}&rdquo;
+            </label>
+            <SetterOptions
+              options={frame.options || []}
+              editable={activeIsCustom}
+              onAdd={handleAddOption}
+              onRemove={handleRemoveOption}
+            />
+          </div>
         </main>
       </div>
 
       {showCheatSheet && (
-        <PlayCheatSheet play={activePlay} roster={appData.roster} onClose={() => setShowCheatSheet(false)} />
+        <PlayCheatSheet
+          play={activePlay}
+          roster={appData.roster}
+          showBall={showBall}
+          onClose={() => setShowCheatSheet(false)}
+        />
       )}
 
       {showRoster && (

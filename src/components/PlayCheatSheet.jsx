@@ -1,10 +1,11 @@
 import { Printer, X } from 'lucide-react';
 import { gridToFraction, GRID_COLS, GRID_ROWS } from '../lib/court';
 import { DEFAULT_POSITIONS } from '../lib/positions';
+import BallGlyph from './BallGlyph';
 
 /** One small static court diagram for a single step of the play, printer-
  * friendly (black/white), with that step's notes underneath. */
-function MiniCourt({ frame, roster }) {
+function MiniCourt({ frame, roster, showBall }) {
   return (
     <div className="border-2 border-gray-400 rounded-md p-2 print:p-3 flex flex-col print:break-inside-avoid">
       <div className="mb-1.5 print:mb-2">
@@ -43,6 +44,20 @@ function MiniCourt({ frame, roster }) {
             </div>
           );
         })}
+        {frame.ball && showBall && (
+          <div
+            className="absolute"
+            style={{
+              left: `${gridToFraction(frame.ball).x * 100}%`,
+              top: `${gridToFraction(frame.ball).y * 100}%`,
+              width: `${(100 / GRID_COLS) * 0.6}%`,
+              height: `${(100 / GRID_ROWS) * 0.6}%`,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <BallGlyph className="w-full h-full" />
+          </div>
+        )}
       </div>
       {frame.notes && (
         <div className="mt-1.5 print:mt-2 text-[10px] print:text-[12px] text-gray-700 leading-snug whitespace-pre-wrap">
@@ -59,7 +74,7 @@ function MiniCourt({ frame, roster }) {
  * index.css) hides everything else on the page when the browser print
  * dialog opens, so only this content ends up on paper.
  */
-export default function PlayCheatSheet({ play, roster, onClose }) {
+export default function PlayCheatSheet({ play, roster, showBall = true, onClose }) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/90 print:static print:bg-transparent print:overflow-visible">
       <div className="max-w-5xl mx-auto p-4 print:p-0 print:max-w-none">
@@ -91,7 +106,7 @@ export default function PlayCheatSheet({ play, roster, onClose }) {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 print:grid-cols-3 print:gap-3">
             {play.frames.map((frame) => (
-              <MiniCourt key={frame.id} frame={frame} roster={roster} />
+              <MiniCourt key={frame.id} frame={frame} roster={roster} showBall={showBall} />
             ))}
           </div>
         </div>

@@ -291,3 +291,49 @@ for (const system of PLAY_SYSTEMS) {
     p.system = system.id;
   }
 }
+
+/** Gives a play an illustrative ball path across its 3 frames: with the
+ * passer at Pre-Serve, rising toward the setter at the middle step, then
+ * at the point of contact with whichever role is the primary attacker for
+ * that play's final step. Just a starting point - drag it anywhere. */
+function setBallPath(playId, attackerId) {
+  const p = findPrebuiltPlay(playId);
+  if (!p) return;
+  const [f0, f1, f2] = p.frames;
+  f0.ball = { col: 6, row: 5 };
+  const setterCell = f1.positions.S;
+  f1.ball = setterCell ? { col: setterCell.col, row: Math.max(0, setterCell.row - 1) } : null;
+  const attackerCell = f2.positions[attackerId];
+  f2.ball = attackerCell ? { col: attackerCell.col, row: 0 } : null;
+}
+
+/** Tags a frame with the setter's alternate reads for that step. */
+function setOptions(playId, frameIndex, opts) {
+  const p = findPrebuiltPlay(playId);
+  if (!p) return;
+  p.frames[frameIndex].options = opts.map((o, i) => ({ id: `pb_opt_${playId}_${frameIndex}_${i}`, ...o }));
+}
+
+setBallPath('pb_31_combo', 'MB1');
+setBallPath('pb_pipe', 'OH2');
+setBallPath('pb_quick_release', 'MB2');
+setBallPath('pb_double_quick', 'MB1');
+setBallPath('pb_4_2_spread', 'OH1');
+setBallPath('pb_setter_attack', 'S');
+
+// A few plays get a worked example of the setter's live options at their
+// decision-point step, so the feature shows something on first launch
+// instead of an empty state.
+setOptions('pb_31_combo', 1, [
+  { targetId: 'MB1', label: 'Quick 1' },
+  { targetId: 'OH1', label: 'Combo behind' },
+]);
+setOptions('pb_double_quick', 1, [
+  { targetId: 'MB1', label: 'Quick to MB1' },
+  { targetId: 'MB2', label: 'Quick to MB2' },
+]);
+setOptions('pb_4_2_spread', 1, [
+  { targetId: 'OH1', label: 'Outside' },
+  { targetId: 'MB1', label: 'Middle quick' },
+  { targetId: 'OH2', label: 'Second tempo' },
+]);

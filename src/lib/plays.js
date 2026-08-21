@@ -14,6 +14,8 @@ export function defaultFrame(label = 'Pre-Serve') {
     id: makeId('frame'),
     label,
     notes: '',
+    ball: null, // {col, row} | null - not shown until placed
+    options: [], // [{id, targetId, label}] - setter's alternate reads for this step
     positions: {
       OH1: { col: 2, row: 2 },
       MB1: { col: 5, row: 1 },
@@ -57,7 +59,7 @@ export function duplicatePlay(play, { name } = {}) {
 export function addFrame(play, afterFrameId) {
   const idx = play.frames.findIndex((f) => f.id === afterFrameId);
   const base = idx >= 0 ? play.frames[idx] : play.frames[play.frames.length - 1];
-  const newFrame = { ...cloneFrameAs(base, `Step ${play.frames.length + 1}`), notes: '' };
+  const newFrame = { ...cloneFrameAs(base, `Step ${play.frames.length + 1}`), notes: '', options: [] };
   const frames = [...play.frames];
   frames.splice(idx >= 0 ? idx + 1 : frames.length, 0, newFrame);
   return { ...play, frames };
@@ -94,6 +96,40 @@ export function updatePositionInFrame(play, frameId, positionId, cell) {
     ...play,
     frames: play.frames.map((f) =>
       f.id === frameId ? { ...f, positions: { ...f.positions, [positionId]: cell } } : f
+    ),
+  };
+}
+
+export function updateBallInFrame(play, frameId, cell) {
+  return {
+    ...play,
+    frames: play.frames.map((f) => (f.id === frameId ? { ...f, ball: cell } : f)),
+  };
+}
+
+export function clearBallInFrame(play, frameId) {
+  return updateBallInFrame(play, frameId, null);
+}
+
+/** Adds one of the setter's alternate reads for a step - e.g. during a
+ * combo, the setter could go to MB1 (quick) or OH1 (behind). Each option
+ * draws as its own line from the setter to that target, labeled with
+ * whatever the coach calls it. */
+export function addOption(play, frameId, { targetId, label }) {
+  const option = { id: makeId('opt'), targetId, label };
+  return {
+    ...play,
+    frames: play.frames.map((f) =>
+      f.id === frameId ? { ...f, options: [...(f.options || []), option] } : f
+    ),
+  };
+}
+
+export function removeOption(play, frameId, optionId) {
+  return {
+    ...play,
+    frames: play.frames.map((f) =>
+      f.id === frameId ? { ...f, options: (f.options || []).filter((o) => o.id !== optionId) } : f
     ),
   };
 }
