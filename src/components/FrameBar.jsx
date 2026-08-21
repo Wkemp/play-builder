@@ -33,24 +33,24 @@ export default function FrameBar({
   }
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex items-center gap-3">
         <button
           onClick={() => onSelectIndex(Math.max(0, activeIndex - 1))}
           disabled={activeIndex === 0}
           aria-label="Previous step"
-          className="flex items-center justify-center w-9 h-9 rounded-full bg-ink-raised border border-ink-line text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors disabled:opacity-30 disabled:hover:border-ink-line disabled:hover:text-chalk-dim"
+          className="flex items-center justify-center w-11 h-11 rounded-full bg-ink-raised border border-ink-line text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors disabled:opacity-30 disabled:hover:border-ink-line disabled:hover:text-chalk-dim"
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={20} />
         </button>
 
-        <div className="flex items-center gap-1.5 px-1">
+        <div className="flex items-center gap-2.5 px-1.5">
           {frames.map((f, i) => (
             <button
               key={f.id}
               onClick={() => onSelectIndex(i)}
               aria-label={`Go to ${f.label}`}
-              className={`w-2.5 h-2.5 rounded-full transition-colors ${
+              className={`w-3.5 h-3.5 rounded-full transition-colors ${
                 i === activeIndex ? 'bg-gold' : 'bg-ink-line hover:bg-chalk-dim'
               }`}
             />
@@ -61,9 +61,9 @@ export default function FrameBar({
           onClick={() => onSelectIndex(Math.min(frames.length - 1, activeIndex + 1))}
           disabled={activeIndex === frames.length - 1}
           aria-label="Next step"
-          className="flex items-center justify-center w-9 h-9 rounded-full bg-ink-raised border border-ink-line text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors disabled:opacity-30 disabled:hover:border-ink-line disabled:hover:text-chalk-dim"
+          className="flex items-center justify-center w-11 h-11 rounded-full bg-ink-raised border border-ink-line text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors disabled:opacity-30 disabled:hover:border-ink-line disabled:hover:text-chalk-dim"
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={20} />
         </button>
       </div>
 

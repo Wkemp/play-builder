@@ -47,7 +47,7 @@ export default function CourtDiagram({
   }
 
   return (
-    <div className="w-full select-none">
+    <div className="w-full select-none pt-6">
       <div className="relative w-full aspect-[3/2]">
         {/* net */}
         <div className="absolute -top-4 left-0 right-0 h-4 pointer-events-none">
