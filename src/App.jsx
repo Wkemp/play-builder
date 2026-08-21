@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Users, Pencil, Check, Copy, Printer, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Users, Pencil, Check, Copy, Printer, PanelLeftClose, PanelLeftOpen, GitBranch, Tag } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { createInitialAppData } from './lib/appData';
 import { PLAY_SYSTEMS, findPrebuiltPlay } from './lib/prebuiltPlays';
@@ -38,6 +38,8 @@ export default function App() {
   const [showCheatSheet, setShowCheatSheet] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage('pb.sidebarCollapsed', () => false);
   const [showBall, setShowBall] = useLocalStorage('pb.showBall', () => true);
+  const [showOptionLines, setShowOptionLines] = useLocalStorage('pb.showOptionLines', () => true);
+  const [showOptionLabels, setShowOptionLabels] = useLocalStorage('pb.showOptionLabels', () => true);
   const [renamingPlay, setRenamingPlay] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
 
@@ -183,7 +185,7 @@ export default function App() {
     <div className="min-h-screen bg-ink p-4 sm:p-6">
       <header className="flex items-center justify-between gap-3 mb-5 flex-wrap">
         <h1 className="font-display font-bold text-2xl text-chalk tracking-wide">Play Builder</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           <button
             onClick={() => setShowBall((v) => !v)}
             aria-pressed={showBall}
@@ -194,6 +196,30 @@ export default function App() {
             }`}
           >
             <BallGlyph className="w-3.5 h-3.5" /> Ball
+          </button>
+          <button
+            onClick={() => setShowOptionLines((v) => !v)}
+            aria-pressed={showOptionLines}
+            title="Show or hide setter option lines on the court diagram"
+            className={`flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border transition-colors ${
+              showOptionLines
+                ? 'bg-sub-bright text-ink border-sub-bright'
+                : 'bg-ink-raised text-chalk-dim border-ink-line hover:border-sub-bright/50 hover:text-chalk'
+            }`}
+          >
+            <GitBranch size={14} /> Lines
+          </button>
+          <button
+            onClick={() => setShowOptionLabels((v) => !v)}
+            aria-pressed={showOptionLabels}
+            title="Show or hide setter option text on the court diagram"
+            className={`flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border transition-colors ${
+              showOptionLabels
+                ? 'bg-sub-bright text-ink border-sub-bright'
+                : 'bg-ink-raised text-chalk-dim border-ink-line hover:border-sub-bright/50 hover:text-chalk'
+            }`}
+          >
+            <Tag size={14} /> Text
           </button>
           <button
             onClick={() => setShowRoster(true)}
@@ -335,6 +361,8 @@ export default function App() {
             onPlaceBall={handlePlaceBall}
             onRemoveBall={handleRemoveBall}
             options={frame.options || []}
+            showOptionLines={showOptionLines}
+            showOptionLabels={showOptionLabels}
           />
 
           <div className="mt-5">

@@ -44,13 +44,18 @@ function quadPoint(ax, ay, cx, cy, bx, by, t) {
  * one, so a frame reads as "here's where things moved from" even before
  * you step through the sequence.
  *
- * `options` (this frame's setter reads, if any) fan out as curved dashed
- * lines from the setter to each listed target. Each curve bows away from
- * any other puck sitting near its direct path (a lightweight obstacle
- * dodge, not true path-planning), and multiple options additionally fan to
- * alternating sides so they don't overlap each other. Labels render above
- * the pucks (z-20 vs pucks' z-10) so they stay legible even when a curve's
- * midpoint lands near a crowded puck.
+ * `options` (this frame's setter reads, if any) fan out as curved, solid
+ * lines from the setter to each listed target, in a distinct bright color
+ * so they read as "alternatives available right now" rather than
+ * "movement that happened." Each curve bows away from any other puck
+ * sitting near its direct path (a lightweight obstacle dodge, not true
+ * path-planning), and multiple options additionally fan to alternating
+ * sides so they don't overlap each other. Labels render above the pucks
+ * (z-20 vs pucks' z-10) so they stay legible even when a curve's midpoint
+ * lands near a crowded puck. `showOptionLines`/`showOptionLabels` can be
+ * toggled independently - e.g. keep the text but hide the lines once a
+ * step is busy enough that the curves themselves add more clutter than
+ * clarity.
  */
 export default function CourtDiagram({
   frame,
@@ -63,6 +68,8 @@ export default function CourtDiagram({
   onPlaceBall,
   onRemoveBall,
   options = [],
+  showOptionLines = true,
+  showOptionLabels = true,
   isFullscreen = false,
 }) {
   const [pickedUp, setPickedUp] = useState(null);
@@ -292,7 +299,7 @@ export default function CourtDiagram({
               curves (see optionGeometry above) - a different color/style
               from the movement trails so "this could go here instead"
               never reads as "this moved." */}
-          {optionGeometry.length > 0 && (
+          {showOptionLines && optionGeometry.length > 0 && (
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 150 100">
               <defs>
                 <marker
@@ -304,7 +311,7 @@ export default function CourtDiagram({
                   orient="auto-start-reverse"
                   markerUnits="strokeWidth"
                 >
-                  <path d="M0,0 L6,3 L0,6 Z" fill="var(--color-sub)" fillOpacity="0.9" />
+                  <path d="M0,0 L6,3 L0,6 Z" fill="var(--color-sub-bright)" />
                 </marker>
               </defs>
               {optionGeometry.map((g) => (
@@ -312,11 +319,9 @@ export default function CourtDiagram({
                   key={g.id}
                   d={g.path}
                   fill="none"
-                  stroke="var(--color-sub)"
-                  strokeOpacity="0.9"
-                  strokeWidth="1"
+                  stroke="var(--color-sub-bright)"
+                  strokeWidth="1.3"
                   strokeLinecap="round"
-                  strokeDasharray="2,2.5"
                   markerEnd={`url(#${optionArrowId})`}
                 />
               ))}
@@ -328,15 +333,16 @@ export default function CourtDiagram({
             app's normal typography instead of needing separate SVG font
             styling. z-20 (above pucks' z-10) so a label never disappears
             under a puck it happens to land near. */}
-        {optionGeometry.map((g) => (
-          <div
-            key={g.id}
-            className="absolute z-20 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[9px] sm:text-[10px] font-medium text-sub bg-ink/90 border border-sub/50 rounded px-1 py-0.5 whitespace-nowrap shadow-sm"
-            style={{ left: `${g.labelXFrac * 100}%`, top: `${g.labelYFrac * 100}%` }}
-          >
-            {g.label}
-          </div>
-        ))}
+        {showOptionLabels &&
+          optionGeometry.map((g) => (
+            <div
+              key={g.id}
+              className="absolute z-20 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[9px] sm:text-[10px] font-medium text-sub-bright bg-ink/90 border border-sub-bright/60 rounded px-1 py-0.5 whitespace-nowrap shadow-sm"
+              style={{ left: `${g.labelXFrac * 100}%`, top: `${g.labelYFrac * 100}%` }}
+            >
+              {g.label}
+            </div>
+          ))}
 
         {/* position pucks */}
         {DEFAULT_POSITIONS.map((pos) => {
