@@ -88,9 +88,13 @@ export default function CourtDiagram({
             </div>
           )}
 
-          {/* movement trails from the previous frame, drawn under the pucks */}
+          {/* movement trails from the previous frame, drawn under the pucks.
+              viewBox matches the court's actual 3:2 aspect ratio (instead of
+              a square one stretched with preserveAspectRatio="none") so a
+              stroke width reads the same in both directions rather than
+              being squashed on one axis. */}
           {previousPositions && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 150 100">
               {DEFAULT_POSITIONS.map((pos) => {
                 const from = previousPositions[pos.id];
                 const to = frame.positions[pos.id];
@@ -100,15 +104,15 @@ export default function CourtDiagram({
                 return (
                   <line
                     key={pos.id}
-                    x1={a.x * 100}
+                    x1={a.x * 150}
                     y1={a.y * 100}
-                    x2={b.x * 100}
+                    x2={b.x * 150}
                     y2={b.y * 100}
                     stroke="var(--color-gold)"
-                    strokeOpacity="0.5"
-                    strokeWidth="0.6"
-                    strokeDasharray="2,1.5"
-                    vectorEffect="non-scaling-stroke"
+                    strokeOpacity="0.9"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeDasharray="4,3"
                   />
                 );
               })}
@@ -128,7 +132,7 @@ export default function CourtDiagram({
             <div
               key={pos.id}
               onClick={() => handlePuckClick(pos.id)}
-              className={`absolute flex flex-col items-center transition-all duration-700 ease-out z-10 ${
+              className={`absolute flex flex-col items-center transition-all duration-[1400ms] ease-in-out z-10 ${
                 editing ? 'cursor-pointer' : ''
               }`}
               style={{ left: `${x * 100}%`, top: `${y * 100}%`, transform: 'translate(-50%, -50%)' }}
