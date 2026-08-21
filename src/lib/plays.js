@@ -13,6 +13,7 @@ export function defaultFrame(label = 'Pre-Serve') {
   return {
     id: makeId('frame'),
     label,
+    notes: '',
     positions: {
       OH1: { col: 2, row: 2 },
       MB1: { col: 5, row: 1 },
@@ -56,7 +57,7 @@ export function duplicatePlay(play, { name } = {}) {
 export function addFrame(play, afterFrameId) {
   const idx = play.frames.findIndex((f) => f.id === afterFrameId);
   const base = idx >= 0 ? play.frames[idx] : play.frames[play.frames.length - 1];
-  const newFrame = cloneFrameAs(base, `Step ${play.frames.length + 1}`);
+  const newFrame = { ...cloneFrameAs(base, `Step ${play.frames.length + 1}`), notes: '' };
   const frames = [...play.frames];
   frames.splice(idx >= 0 ? idx + 1 : frames.length, 0, newFrame);
   return { ...play, frames };
@@ -71,6 +72,13 @@ export function renameFrame(play, frameId, label) {
   return {
     ...play,
     frames: play.frames.map((f) => (f.id === frameId ? { ...f, label } : f)),
+  };
+}
+
+export function updateFrameNotes(play, frameId, notes) {
+  return {
+    ...play,
+    frames: play.frames.map((f) => (f.id === frameId ? { ...f, notes } : f)),
   };
 }
 

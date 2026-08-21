@@ -12,9 +12,10 @@ function play(name, frameDefs) {
     id: `pb_${name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
     name,
     isCustom: false,
-    frames: frameDefs.map(([label, positions], i) => ({
+    frames: frameDefs.map(([label, positions, notes = ''], i) => ({
       id: `pb_${name}_${i}`,
       label,
+      notes,
       positions,
     })),
   };
@@ -37,6 +38,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 6 },
             MB2: { col: 5, row: 6 },
           },
+          "S sets from base position on serve. OH1 and MB1 hold normal front-row spots, ready to release into the combo.",
         ],
         [
           'Transition',
@@ -48,6 +50,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 5 },
             MB2: { col: 5, row: 5 },
           },
+          "MB1 pushes tight to the setter for a quick 1. OH1 clears deep then curls back in behind MB1's approach to disguise the combo.",
         ],
         [
           'Attack',
@@ -59,6 +62,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 4 },
             MB2: { col: 5, row: 5 },
           },
+          "MB1 attacks the quick set first, occupying the middle blocker. OH1 hits a step behind MB1's original spot where the block couldn't commit.",
         ],
       ]),
       play('Pipe', [
@@ -72,6 +76,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 6 },
             MB2: { col: 5, row: 6 },
           },
+          'Standard serve-receive shape. OH2 is deep in the back row, out of the front-row attackers the block is keying on.',
         ],
         [
           'Approach',
@@ -83,6 +88,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 5, row: 5 },
             MB2: { col: 7, row: 2 },
           },
+          "MB2 releases to the net for a decoy quick front, pulling the middle blocker's eyes. OH2 begins the back-row approach from behind the 3m line.",
         ],
         [
           'Attack',
@@ -94,6 +100,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 5, row: 3 },
             MB2: { col: 7, row: 1 },
           },
+          "OH2 attacks from back-row middle (the 'pipe') - the middle blocker is occupied by MB2's decoy, so the pipe hits a seam.",
         ],
       ]),
     ],
@@ -114,6 +121,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 6 },
             MB2: { col: 9, row: 6 },
           },
+          "Setter starts back row per 6-2 rotation; all six attackers are eligible since S isn't front row.",
         ],
         [
           'Release',
@@ -125,6 +133,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 2, row: 5 },
             MB2: { col: 9, row: 3 },
           },
+          'S releases forward toward net to set. MB2 begins a middle release run to threaten a quick set from the right side.',
         ],
         [
           'Attack',
@@ -136,6 +145,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 2, row: 4 },
             MB2: { col: 9, row: 1 },
           },
+          "MB2 finishes the quick attack up the middle. OH2 stays wide as a secondary read if the block commits to MB2.",
         ],
       ]),
       play('Double Quick', [
@@ -149,6 +159,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 6 },
             MB2: { col: 9, row: 6 },
           },
+          'Both middles start in normal front-row spots; back-row S is about to release to target.',
         ],
         [
           'Both Middles Release',
@@ -160,6 +171,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 5 },
             MB2: { col: 7, row: 2 },
           },
+          'MB1 and MB2 both release toward the setter at the same tempo, forcing the middle blocker to commit to one or split.',
         ],
         [
           'Attack',
@@ -171,6 +183,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 4 },
             MB2: { col: 7, row: 1 },
           },
+          "Setter picks whichever middle the block didn't commit to - shown here as MB1's quick 1, with MB2's release as the decoy.",
         ],
       ]),
     ],
@@ -191,6 +204,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 6 },
             MB2: { col: 5, row: 6 },
           },
+          'Both setters start front row (S and OPP), so the offense spreads across four remaining attackers.',
         ],
         [
           'Set',
@@ -202,6 +216,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 5 },
             MB2: { col: 5, row: 5 },
           },
+          'S sets from the front row. OH1, MB1, and OH2 all release toward their approach lines at once to stretch the block.',
         ],
         [
           'Attack',
@@ -213,6 +228,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 4 },
             MB2: { col: 5, row: 4 },
           },
+          'Attack spreads wide - OH1 and MB1 up front, OH2 trailing as a second-tempo option if the first read is covered.',
         ],
       ]),
       play('Setter Attack', [
@@ -226,6 +242,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 6 },
             MB2: { col: 5, row: 6 },
           },
+          'Normal 4-2 base shape - S is disguised as a passer/blocker before releasing to set.',
         ],
         [
           'Freeze the Block',
@@ -237,6 +254,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 5 },
             MB2: { col: 5, row: 5 },
           },
+          "S releases toward the net as if to set a normal ball, freezing the opposing block's read.",
         ],
         [
           'Setter Tip/Attack',
@@ -248,6 +266,7 @@ export const PLAY_SYSTEMS = [
             OH2: { col: 1, row: 4 },
             MB2: { col: 5, row: 4 },
           },
+          'Instead of setting, S tips or attacks the second ball directly - effective when the block over-commits to the outside hitters.',
         ],
       ]),
     ],

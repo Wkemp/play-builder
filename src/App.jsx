@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Users, Pencil, Check, Copy } from 'lucide-react';
+import { Users, Pencil, Check, Copy, Printer } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { createInitialAppData } from './lib/appData';
 import { PLAY_SYSTEMS, findPrebuiltPlay } from './lib/prebuiltPlays';
@@ -9,6 +9,7 @@ import {
   addFrame,
   removeFrame,
   renameFrame,
+  updateFrameNotes,
   updatePositionInFrame,
 } from './lib/plays';
 import CourtDiagram from './components/CourtDiagram';
@@ -16,6 +17,7 @@ import FrameBar from './components/FrameBar';
 import PlayLibrary from './components/PlayLibrary';
 import RosterEditor from './components/RosterEditor';
 import DataTransfer from './components/DataTransfer';
+import PlayCheatSheet from './components/PlayCheatSheet';
 
 const FIRST_PREBUILT = PLAY_SYSTEMS[0].plays[0];
 
@@ -26,6 +28,7 @@ export default function App() {
   const [frameIndex, setFrameIndex] = useState(0);
   const [editing, setEditing] = useState(false);
   const [showRoster, setShowRoster] = useState(false);
+  const [showCheatSheet, setShowCheatSheet] = useState(false);
   const [renamingPlay, setRenamingPlay] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
 
@@ -128,6 +131,11 @@ export default function App() {
     updateCustomPlay(renameFrame(activePlay, frameId, label));
   }
 
+  function handleNotesChange(notes) {
+    if (!activeIsCustom) return;
+    updateCustomPlay(updateFrameNotes(activePlay, frame.id, notes));
+  }
+
   function commitPlayRename() {
     if (nameDraft.trim()) updateCustomPlay({ ...activePlay, name: nameDraft.trim() });
     setRenamingPlay(false);
@@ -203,25 +211,33 @@ export default function App() {
               )}
             </div>
 
-            {activeIsCustom ? (
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setEditing((e) => !e)}
-                className={`h-9 px-3 rounded-lg text-xs font-medium border transition-colors ${
-                  editing
-                    ? 'bg-gold text-ink border-gold'
-                    : 'bg-ink-raised text-chalk-dim border-ink-line hover:border-gold/50 hover:text-chalk'
-                }`}
-              >
-                {editing ? 'Done Editing' : 'Edit Positions'}
-              </button>
-            ) : (
-              <button
-                onClick={() => handleDuplicate(activePlay)}
+                onClick={() => setShowCheatSheet(true)}
                 className="flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-ink-line bg-ink-raised text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors"
               >
-                <Copy size={13} /> Duplicate to Edit
+                <Printer size={13} /> Cheat Sheet
               </button>
-            )}
+              {activeIsCustom ? (
+                <button
+                  onClick={() => setEditing((e) => !e)}
+                  className={`h-9 px-3 rounded-lg text-xs font-medium border transition-colors ${
+                    editing
+                      ? 'bg-gold text-ink border-gold'
+                      : 'bg-ink-raised text-chalk-dim border-ink-line hover:border-gold/50 hover:text-chalk'
+                  }`}
+                >
+                  {editing ? 'Done Editing' : 'Edit Positions'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleDuplicate(activePlay)}
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-ink-line bg-ink-raised text-chalk-dim hover:border-gold/50 hover:text-chalk transition-colors"
+                >
+                  <Copy size={13} /> Duplicate to Edit
+                </button>
+              )}
+            </div>
           </div>
 
           <CourtDiagram
@@ -243,8 +259,33 @@ export default function App() {
               onRenameFrame={handleRenameFrame}
             />
           </div>
+
+          <div className="mt-4">
+            <label className="block text-[10px] uppercase tracking-widest text-chalk-dim/70 font-display mb-1.5">
+              Notes for &ldquo;{frame.label}&rdquo;
+            </label>
+            {activeIsCustom ? (
+              <textarea
+                value={frame.notes || ''}
+                onChange={(e) => handleNotesChange(e.target.value)}
+                placeholder="What is each position doing during this step?"
+                rows={3}
+                className="w-full bg-ink border border-ink-line rounded-md px-3 py-2 text-sm text-chalk placeholder:text-chalk-dim/50 focus:outline-none focus:border-gold/50 resize-y"
+              />
+            ) : frame.notes ? (
+              <p className="text-sm text-chalk-dim leading-relaxed bg-ink border border-ink-line rounded-md px-3 py-2">
+                {frame.notes}
+              </p>
+            ) : (
+              <p className="text-xs text-chalk-dim/50 italic">No notes for this step.</p>
+            )}
+          </div>
         </main>
       </div>
+
+      {showCheatSheet && (
+        <PlayCheatSheet play={activePlay} roster={appData.roster} onClose={() => setShowCheatSheet(false)} />
+      )}
 
       {showRoster && (
         <RosterEditor
