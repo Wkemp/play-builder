@@ -25,7 +25,7 @@ export function defaultFrame(label = 'Pre-Serve') {
   };
 }
 
-export function createBlankPlay({ system = 'custom', name = 'New Play' } = {}) {
+export function createBlankPlay({ system = null, name = 'New Play' } = {}) {
   return {
     id: makeId('play'),
     name,
@@ -80,6 +80,13 @@ export function updateFrameNotes(play, frameId, notes) {
     ...play,
     frames: play.frames.map((f) => (f.id === frameId ? { ...f, notes } : f)),
   };
+}
+
+/** Tags a custom play with the offensive system it's designed for - purely
+ * informational (a badge in the library), not what determines which tab
+ * it's filed under. Pass null/'' to clear it ("no particular system"). */
+export function updatePlaySystem(play, systemId) {
+  return { ...play, system: systemId || null };
 }
 
 export function updatePositionInFrame(play, frameId, positionId, cell) {

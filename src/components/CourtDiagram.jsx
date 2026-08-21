@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { gridToFraction, fractionToGrid } from '../lib/court';
 import { DEFAULT_POSITIONS } from '../lib/positions';
 
@@ -23,6 +23,7 @@ export default function CourtDiagram({
 }) {
   const [pickedUp, setPickedUp] = useState(null);
   const courtRef = useRef(null);
+  const arrowId = useId();
 
   const puckSize = isFullscreen
     ? 'w-20 h-20 sm:w-24 sm:h-24 text-2xl sm:text-3xl'
@@ -92,27 +93,54 @@ export default function CourtDiagram({
               viewBox matches the court's actual 3:2 aspect ratio (instead of
               a square one stretched with preserveAspectRatio="none") so a
               stroke width reads the same in both directions rather than
-              being squashed on one axis. */}
+              being squashed on one axis. Muted court-line blue rather than
+              gold keeps it visually secondary to the pucks. */}
           {previousPositions && (
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 150 100">
+              <defs>
+                <marker
+                  id={arrowId}
+                  markerWidth="6"
+                  markerHeight="6"
+                  refX="5"
+                  refY="3"
+                  orient="auto-start-reverse"
+                  markerUnits="strokeWidth"
+                >
+                  <path d="M0,0 L6,3 L0,6 Z" fill="var(--color-court-line)" fillOpacity="0.85" />
+                </marker>
+              </defs>
               {DEFAULT_POSITIONS.map((pos) => {
                 const from = previousPositions[pos.id];
                 const to = frame.positions[pos.id];
                 if (!from || !to || (from.col === to.col && from.row === to.row)) return null;
                 const a = gridToFraction(from);
                 const b = gridToFraction(to);
+                const ax = a.x * 150;
+                const ay = a.y * 100;
+                const bx = b.x * 150;
+                const by = b.y * 100;
+                // Pull the endpoint back off the destination puck so the
+                // arrowhead is visible rather than buried underneath it.
+                const dx = bx - ax;
+                const dy = by - ay;
+                const dist = Math.hypot(dx, dy) || 1;
+                const pullback = Math.min(6, dist * 0.35);
+                const ex = bx - (dx / dist) * pullback;
+                const ey = by - (dy / dist) * pullback;
                 return (
                   <line
                     key={pos.id}
-                    x1={a.x * 150}
-                    y1={a.y * 100}
-                    x2={b.x * 150}
-                    y2={b.y * 100}
-                    stroke="var(--color-gold)"
-                    strokeOpacity="0.9"
-                    strokeWidth="1.6"
+                    x1={ax}
+                    y1={ay}
+                    x2={ex}
+                    y2={ey}
+                    stroke="var(--color-court-line)"
+                    strokeOpacity="0.85"
+                    strokeWidth="1"
                     strokeLinecap="round"
                     strokeDasharray="4,3"
+                    markerEnd={`url(#${arrowId})`}
                   />
                 );
               })}

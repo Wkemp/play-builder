@@ -281,3 +281,13 @@ export function findPrebuiltPlay(playId) {
   }
   return null;
 }
+
+// Tag each prebuilt play with its owning system id. Duplicating a play
+// spreads its fields (see lib/plays.js duplicatePlay), so a copy inherits
+// this automatically and the library can group it under the right tab
+// without any extra bookkeeping at duplicate time.
+for (const system of PLAY_SYSTEMS) {
+  for (const p of system.plays) {
+    p.system = system.id;
+  }
+}

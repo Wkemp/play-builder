@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Users, Pencil, Check, Copy, Printer } from 'lucide-react';
+import { Users, Pencil, Check, Copy, Printer, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { createInitialAppData } from './lib/appData';
 import { PLAY_SYSTEMS, findPrebuiltPlay } from './lib/prebuiltPlays';
@@ -10,6 +10,7 @@ import {
   removeFrame,
   renameFrame,
   updateFrameNotes,
+  updatePlaySystem,
   updatePositionInFrame,
 } from './lib/plays';
 import CourtDiagram from './components/CourtDiagram';
@@ -29,6 +30,7 @@ export default function App() {
   const [editing, setEditing] = useState(false);
   const [showRoster, setShowRoster] = useState(false);
   const [showCheatSheet, setShowCheatSheet] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage('pb.sidebarCollapsed', () => false);
   const [renamingPlay, setRenamingPlay] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
 
@@ -141,6 +143,11 @@ export default function App() {
     setRenamingPlay(false);
   }
 
+  function handleSystemChange(systemId) {
+    if (!activeIsCustom) return;
+    updateCustomPlay(updatePlaySystem(activePlay, systemId));
+  }
+
   function handleImport(imported) {
     setAppData((prev) => ({ ...prev, roster: imported.roster, customPlays: imported.customPlays }));
   }
@@ -161,16 +168,40 @@ export default function App() {
       </header>
 
       <div className="flex flex-col [@media(min-width:64rem)]:flex-row gap-5 items-start">
-        <aside className="w-full [@media(min-width:64rem)]:w-72 shrink-0 bg-ink-raised/40 border border-ink-line rounded-lg p-3 [@media(min-width:64rem)]:sticky [@media(min-width:64rem)]:top-4 [@media(min-width:64rem)]:max-h-[calc(100vh-2rem)]">
-          <PlayLibrary
-            customPlays={appData.customPlays}
-            activePlayId={activePlayId}
-            onSelectPrebuilt={selectPrebuilt}
-            onSelectCustom={selectCustom}
-            onDuplicate={handleDuplicate}
-            onDelete={handleDeleteCustom}
-            onNewBlank={handleNewBlank}
-          />
+        <aside
+          className={`shrink-0 bg-ink-raised/40 border border-ink-line rounded-lg [@media(min-width:64rem)]:sticky [@media(min-width:64rem)]:top-4 [@media(min-width:64rem)]:max-h-[calc(100vh-2rem)] transition-[width] duration-200 ${
+            sidebarCollapsed
+              ? 'w-full [@media(min-width:64rem)]:w-12 p-2'
+              : 'w-full [@media(min-width:64rem)]:w-72 p-3'
+          }`}
+        >
+          <button
+            onClick={() => setSidebarCollapsed((c) => !c)}
+            aria-label={sidebarCollapsed ? 'Expand play library' : 'Collapse play library'}
+            className={`flex items-center gap-1.5 text-chalk-dim hover:text-gold transition-colors ${
+              sidebarCollapsed ? 'w-full justify-center py-1' : 'mb-2 text-xs'
+            }`}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen size={16} />
+            ) : (
+              <>
+                <PanelLeftClose size={14} /> Collapse
+              </>
+            )}
+          </button>
+
+          {!sidebarCollapsed && (
+            <PlayLibrary
+              customPlays={appData.customPlays}
+              activePlayId={activePlayId}
+              onSelectPrebuilt={selectPrebuilt}
+              onSelectCustom={selectCustom}
+              onDuplicate={handleDuplicate}
+              onDelete={handleDeleteCustom}
+              onNewBlank={handleNewBlank}
+            />
+          )}
         </aside>
 
         <main className="flex-1 w-full min-w-0 bg-ink-raised/40 border border-ink-line rounded-lg p-4 sm:p-6">
@@ -208,6 +239,21 @@ export default function App() {
                 <span className="text-[10px] uppercase tracking-widest text-chalk-dim/60 bg-ink px-2 py-0.5 rounded-full">
                   Prebuilt
                 </span>
+              )}
+              {activeIsCustom && (
+                <select
+                  value={activePlay.system || ''}
+                  onChange={(e) => handleSystemChange(e.target.value)}
+                  aria-label="Designed for system"
+                  className="text-[11px] bg-ink border border-ink-line rounded-full px-2 py-1 text-chalk-dim focus:outline-none focus:border-gold/50"
+                >
+                  <option value="">No system</option>
+                  {PLAY_SYSTEMS.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
               )}
             </div>
 

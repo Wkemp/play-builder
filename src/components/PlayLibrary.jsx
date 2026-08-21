@@ -4,11 +4,15 @@ import { PLAY_SYSTEMS } from '../lib/prebuiltPlays';
 
 const CUSTOM_TAB = 'custom';
 
+function systemLabel(systemId) {
+  return PLAY_SYSTEMS.find((s) => s.id === systemId)?.label || null;
+}
+
 /**
  * Left-hand library: tabs for each prebuilt system plus "My Plays" for
- * anything custom or duplicated. Prebuilt plays are read-only (lock icon,
- * duplicate-only) - editing always happens on a copy so the starter packs
- * stay intact as a reference.
+ * everything custom, regardless of what system (if any) it's tagged for.
+ * The system tag is just a badge here for reference/sorting-by-eye - it's
+ * set from the play editor itself, not by which tab you created it in.
  */
 export default function PlayLibrary({
   customPlays,
@@ -69,9 +73,14 @@ export default function PlayLibrary({
               >
                 <button
                   onClick={() => onSelectCustom(p.id)}
-                  className="flex-1 min-w-0 text-left px-3 py-2 text-sm text-chalk truncate"
+                  className="flex-1 min-w-0 flex items-center gap-1.5 text-left px-3 py-2 text-sm text-chalk"
                 >
-                  {p.name}
+                  <span className="truncate">{p.name}</span>
+                  {systemLabel(p.system) && (
+                    <span className="shrink-0 text-[9px] font-display font-semibold uppercase tracking-wide text-gold/80 bg-gold/10 rounded-full px-1.5 py-0.5">
+                      {systemLabel(p.system)}
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={() => onDuplicate(p)}
@@ -102,14 +111,14 @@ export default function PlayLibrary({
                   }`}
                 >
                   <button
-                    onClick={() => onSelectPrebuilt(p, activeSystem.id)}
+                    onClick={() => onSelectPrebuilt(p)}
                     className="flex-1 min-w-0 flex items-center gap-1.5 text-left px-3 py-2 text-sm text-chalk truncate"
                   >
                     <Lock size={10} className="text-chalk-dim/50 shrink-0" />
                     {p.name}
                   </button>
                   <button
-                    onClick={() => onDuplicate(p, activeSystem.id)}
+                    onClick={() => onDuplicate(p)}
                     aria-label={`Duplicate ${p.name}`}
                     className="p-1.5 mr-1 text-chalk-dim hover:text-gold transition-colors"
                   >
