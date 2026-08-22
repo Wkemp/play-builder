@@ -3,6 +3,7 @@ import { Users, Pencil, Check, Copy, Printer, PanelLeftClose, PanelLeftOpen, Git
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { createInitialAppData } from './lib/appData';
 import { PLAY_SYSTEMS, findPrebuiltPlay } from './lib/prebuiltPlays';
+import { positionsForSystem } from './lib/positions';
 import {
   createBlankPlay,
   duplicatePlay,
@@ -75,6 +76,7 @@ export default function App() {
 
   const frame = activePlay.frames[Math.min(frameIndex, activePlay.frames.length - 1)];
   const previousFrame = frameIndex > 0 ? activePlay.frames[frameIndex - 1] : null;
+  const contextPositions = positionsForSystem(activePlay.system);
 
   function updateCustomPlay(updated) {
     setAppData((prev) => ({
@@ -350,64 +352,68 @@ export default function App() {
             </div>
           </div>
 
-          <CourtDiagram
-            frame={frame}
-            previousPositions={previousFrame?.positions || null}
-            roster={appData.roster}
-            editing={editing && activeIsCustom}
-            onPlacePosition={handlePlacePosition}
-            ball={frame.ball || null}
-            showBall={showBall}
-            onPlaceBall={handlePlaceBall}
-            onRemoveBall={handleRemoveBall}
-            options={frame.options || []}
-            showOptionLines={showOptionLines}
-            showOptionLabels={showOptionLabels}
-          />
-
-          <div className="mt-5">
-            <FrameBar
-              frames={activePlay.frames}
-              activeIndex={Math.min(frameIndex, activePlay.frames.length - 1)}
-              onSelectIndex={setFrameIndex}
-              editable={activeIsCustom}
-              onAddFrame={handleAddFrame}
-              onRemoveFrame={handleRemoveFrame}
-              onRenameFrame={handleRenameFrame}
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-[10px] uppercase tracking-widest text-chalk-dim/70 font-display mb-1.5">
-              Notes for &ldquo;{frame.label}&rdquo;
-            </label>
-            {activeIsCustom ? (
-              <textarea
-                value={frame.notes || ''}
-                onChange={(e) => handleNotesChange(e.target.value)}
-                placeholder="What is each position doing during this step?"
-                rows={3}
-                className="w-full bg-ink border border-ink-line rounded-md px-3 py-2 text-sm text-chalk placeholder:text-chalk-dim/50 focus:outline-none focus:border-gold/50 resize-y"
-              />
-            ) : frame.notes ? (
-              <p className="text-sm text-chalk-dim leading-relaxed bg-ink border border-ink-line rounded-md px-3 py-2">
-                {frame.notes}
-              </p>
-            ) : (
-              <p className="text-xs text-chalk-dim/50 italic">No notes for this step.</p>
-            )}
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-[10px] uppercase tracking-widest text-chalk-dim/70 font-display mb-1.5">
-              Setter Options for &ldquo;{frame.label}&rdquo;
-            </label>
-            <SetterOptions
+          <div className="max-w-[1024px] mx-auto">
+            <CourtDiagram
+              frame={frame}
+              previousPositions={previousFrame?.positions || null}
+              roster={appData.roster}
+              editing={editing && activeIsCustom}
+              onPlacePosition={handlePlacePosition}
+              ball={frame.ball || null}
+              showBall={showBall}
+              onPlaceBall={handlePlaceBall}
+              onRemoveBall={handleRemoveBall}
               options={frame.options || []}
-              editable={activeIsCustom}
-              onAdd={handleAddOption}
-              onRemove={handleRemoveOption}
+              showOptionLines={showOptionLines}
+              showOptionLabels={showOptionLabels}
+              positions={contextPositions}
             />
+
+            <div className="mt-5">
+              <FrameBar
+                frames={activePlay.frames}
+                activeIndex={Math.min(frameIndex, activePlay.frames.length - 1)}
+                onSelectIndex={setFrameIndex}
+                editable={activeIsCustom}
+                onAddFrame={handleAddFrame}
+                onRemoveFrame={handleRemoveFrame}
+                onRenameFrame={handleRenameFrame}
+              />
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-[10px] uppercase tracking-widest text-chalk-dim/70 font-display mb-1.5">
+                Notes for &ldquo;{frame.label}&rdquo;
+              </label>
+              {activeIsCustom ? (
+                <textarea
+                  value={frame.notes || ''}
+                  onChange={(e) => handleNotesChange(e.target.value)}
+                  placeholder="What is each position doing during this step?"
+                  rows={3}
+                  className="w-full bg-ink border border-ink-line rounded-md px-3 py-2 text-sm text-chalk placeholder:text-chalk-dim/50 focus:outline-none focus:border-gold/50 resize-y"
+                />
+              ) : frame.notes ? (
+                <p className="text-sm text-chalk-dim leading-relaxed bg-ink border border-ink-line rounded-md px-3 py-2">
+                  {frame.notes}
+                </p>
+              ) : (
+                <p className="text-xs text-chalk-dim/50 italic">No notes for this step.</p>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-[10px] uppercase tracking-widest text-chalk-dim/70 font-display mb-1.5">
+                Setter Options for &ldquo;{frame.label}&rdquo;
+              </label>
+              <SetterOptions
+                options={frame.options || []}
+                editable={activeIsCustom}
+                onAdd={handleAddOption}
+                onRemove={handleRemoveOption}
+                positions={contextPositions}
+              />
+            </div>
           </div>
         </main>
       </div>

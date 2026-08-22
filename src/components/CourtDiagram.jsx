@@ -1,5 +1,5 @@
 import { useId, useMemo, useRef, useState } from 'react';
-import { gridToFraction, fractionToGrid } from '../lib/court';
+import { gridToFraction, fractionToGrid, GRID_COLS, GRID_ROWS } from '../lib/court';
 import { DEFAULT_POSITIONS } from '../lib/positions';
 import BallGlyph from './BallGlyph';
 
@@ -70,6 +70,7 @@ export default function CourtDiagram({
   options = [],
   showOptionLines = true,
   showOptionLabels = true,
+  positions = DEFAULT_POSITIONS,
   isFullscreen = false,
 }) {
   const [pickedUp, setPickedUp] = useState(null);
@@ -141,7 +142,7 @@ export default function CourtDiagram({
         // pushes the curve to the opposite side, scaled by how close it
         // is. With nothing nearby, options just fan to alternating sides
         // so multiple curves from the same setter stay visually separate.
-        const obstacles = DEFAULT_POSITIONS.filter((p) => p.id !== 'S' && p.id !== opt.targetId)
+        const obstacles = positions.filter((p) => p.id !== 'S' && p.id !== opt.targetId)
           .map((p) => frame.positions[p.id])
           .filter(Boolean)
           .map((c) => gridToFraction(c));
@@ -222,18 +223,18 @@ export default function CourtDiagram({
 
           {editing && (
             <div className="absolute inset-0 pointer-events-none">
-              {Array.from({ length: 11 }).map((_, i) => (
+              {Array.from({ length: GRID_COLS - 1 }).map((_, i) => (
                 <div
                   key={`gc-${i}`}
                   className="absolute top-0 bottom-0 w-px bg-gold/15"
-                  style={{ left: `${((i + 1) / 12) * 100}%` }}
+                  style={{ left: `${((i + 1) / GRID_COLS) * 100}%` }}
                 />
               ))}
-              {Array.from({ length: 7 }).map((_, i) => (
+              {Array.from({ length: GRID_ROWS - 1 }).map((_, i) => (
                 <div
                   key={`gr-${i}`}
                   className="absolute left-0 right-0 h-px bg-gold/15"
-                  style={{ top: `${((i + 1) / 8) * 100}%` }}
+                  style={{ top: `${((i + 1) / GRID_ROWS) * 100}%` }}
                 />
               ))}
             </div>
@@ -260,7 +261,7 @@ export default function CourtDiagram({
                   <path d="M0,0 L6,3 L0,6 Z" fill="var(--color-court-line)" fillOpacity="0.85" />
                 </marker>
               </defs>
-              {DEFAULT_POSITIONS.map((pos) => {
+              {positions.map((pos) => {
                 const from = previousPositions[pos.id];
                 const to = frame.positions[pos.id];
                 if (!from || !to || (from.col === to.col && from.row === to.row)) return null;
@@ -345,7 +346,7 @@ export default function CourtDiagram({
           ))}
 
         {/* position pucks */}
-        {DEFAULT_POSITIONS.map((pos) => {
+        {positions.map((pos) => {
           const cell = frame.positions[pos.id];
           if (!cell) return null;
           const { x, y } = gridToFraction(cell);

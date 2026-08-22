@@ -15,6 +15,25 @@ export const DEFAULT_POSITIONS = [
 
 export const POSITION_IDS = DEFAULT_POSITIONS.map((p) => p.id);
 
+// Some systems conventionally call a role something different, even though
+// it's the same functional slot. Most notably, beginner-friendly 4-2
+// usually calls the OPP role "Right Side" rather than "Opposite" - the
+// position is less specialized there, so the more casual name is standard.
+// Extend this map if other systems need their own terminology later.
+const SYSTEM_LABEL_OVERRIDES = {
+  '4-2': { OPP: 'Right Side' },
+};
+
+/** The six position roles, with labels localized to a system's conventional
+ * terminology. Falls back to the generic labels when systemId is
+ * null/unrecognized (e.g. a custom play with no system tag) - ids never
+ * change, only display labels. */
+export function positionsForSystem(systemId) {
+  const overrides = SYSTEM_LABEL_OVERRIDES[systemId];
+  if (!overrides) return DEFAULT_POSITIONS;
+  return DEFAULT_POSITIONS.map((p) => (overrides[p.id] ? { ...p, label: overrides[p.id] } : p));
+}
+
 /** Default roster entry for a position - no number/name assigned yet. */
 export function blankRosterEntry() {
   const entry = {};

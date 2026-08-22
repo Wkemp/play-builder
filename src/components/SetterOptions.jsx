@@ -2,16 +2,15 @@ import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { DEFAULT_POSITIONS } from '../lib/positions';
 
-const TARGET_POSITIONS = DEFAULT_POSITIONS.filter((p) => p.id !== 'S');
-
 /**
  * A step can have more than one live look for the setter - "quick to MB1
  * or combo to OH1," say. Each option is just a target role plus a short
  * label; CourtDiagram fans a dashed line out to each target from wherever
  * the setter is standing that step.
  */
-export default function SetterOptions({ options, editable, onAdd, onRemove }) {
-  const [targetId, setTargetId] = useState(TARGET_POSITIONS[0].id);
+export default function SetterOptions({ options, editable, onAdd, onRemove, positions = DEFAULT_POSITIONS }) {
+  const targetPositions = positions.filter((p) => p.id !== 'S');
+  const [targetId, setTargetId] = useState(targetPositions[0].id);
   const [label, setLabel] = useState('');
 
   function handleAdd() {
@@ -34,7 +33,7 @@ export default function SetterOptions({ options, editable, onAdd, onRemove }) {
               className="flex items-center gap-1.5 text-xs bg-ink border border-sub/40 text-sub rounded-full pl-2.5 pr-1.5 py-1"
             >
               <span className="text-chalk-dim">
-                {TARGET_POSITIONS.find((p) => p.id === opt.targetId)?.label || opt.targetId}:
+                {targetPositions.find((p) => p.id === opt.targetId)?.label || opt.targetId}:
               </span>
               {opt.label}
               {editable && (
@@ -58,7 +57,7 @@ export default function SetterOptions({ options, editable, onAdd, onRemove }) {
             onChange={(e) => setTargetId(e.target.value)}
             className="bg-ink border border-ink-line rounded px-2 py-1.5 text-sm text-chalk shrink-0"
           >
-            {TARGET_POSITIONS.map((p) => (
+            {targetPositions.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
               </option>

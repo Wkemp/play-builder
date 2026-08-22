@@ -2,12 +2,13 @@
 // the coordinate system is identical, we just dropped everything tied to
 // serve-order zones/slots since plays are position-based, not rotation-based.
 //
-// The whole court is a 12x8 grid so a coach can place a player anywhere
-// (or right at the sideline/net, for realistic stacking) rather than being
-// pinned to a handful of fixed spots.
+// The court divides into the usual 6 rotational zones (3 across, 2 deep).
+// At 15x10, each zone is its own 5x5 sub-grid, giving enough placement
+// precision for realistic stacking/spacing without pinning a coach to a
+// handful of fixed spots.
 
-export const GRID_COLS = 12
-export const GRID_ROWS = 8
+export const GRID_COLS = 15
+export const GRID_ROWS = 10
 
 /** Grid cell {col, row} -> fractional {x, y} (0-1) for rendering, centered in the cell. */
 export function gridToFraction({ col, row }) {

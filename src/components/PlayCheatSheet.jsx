@@ -1,7 +1,16 @@
 import { Printer, X } from 'lucide-react';
-import { gridToFraction, GRID_COLS, GRID_ROWS } from '../lib/court';
+import { gridToFraction } from '../lib/court';
 import { DEFAULT_POSITIONS } from '../lib/positions';
 import BallGlyph from './BallGlyph';
+
+// Fixed visual size for print pucks, independent of GRID_COLS/GRID_ROWS
+// (the live placement grid). Placement precision and puck visual size are
+// different concerns - a finer placement grid shouldn't shrink the printed
+// pucks. Sized as roughly 1/9 of court width x 1/6 of court height, which
+// reads as "about a third of a rotational zone" - a size tuned by eye
+// rather than derived from grid math.
+const PUCK_WIDTH_PCT = 100 / 9;
+const PUCK_HEIGHT_PCT = 100 / 6;
 
 /** One small static court diagram for a single step of the play, printer-
  * friendly (black/white), with that step's notes underneath. */
@@ -32,11 +41,8 @@ function MiniCourt({ frame, roster, showBall }) {
               style={{
                 left: `${x * 100}%`,
                 top: `${y * 100}%`,
-                // A puck fills exactly one cell of the grid - since the court
-                // is 3:2 and the grid is 12x8 (same 3:2 ratio), this works
-                // out to a true square at any rendered/print size.
-                width: `${100 / GRID_COLS}%`,
-                height: `${100 / GRID_ROWS}%`,
+                width: `${PUCK_WIDTH_PCT}%`,
+                height: `${PUCK_HEIGHT_PCT}%`,
                 transform: 'translate(-50%, -50%)',
               }}
             >
@@ -48,17 +54,17 @@ function MiniCourt({ frame, roster, showBall }) {
           const targetCell = frame.ball.attachedTo ? frame.positions[frame.ball.attachedTo] : frame.ball;
           if (!targetCell) return null;
           const { x, y } = gridToFraction(targetCell);
-          // Attached: nudge up half a cell so the ball sits at the puck's
-          // top edge rather than dead-center on top of the number.
-          const yOffset = frame.ball.attachedTo ? 0.5 / GRID_ROWS : 0;
+          // Attached: nudge up half a puck-height so the ball sits at the
+          // puck's top edge rather than dead-center on top of the number.
+          const yOffset = frame.ball.attachedTo ? PUCK_HEIGHT_PCT / 2 / 100 : 0;
           return (
             <div
               className="absolute"
               style={{
                 left: `${x * 100}%`,
                 top: `${(y - yOffset) * 100}%`,
-                width: `${(100 / GRID_COLS) * 0.55}%`,
-                height: `${(100 / GRID_ROWS) * 0.55}%`,
+                width: `${PUCK_WIDTH_PCT * 0.55}%`,
+                height: `${PUCK_HEIGHT_PCT * 0.55}%`,
                 transform: 'translate(-50%, -50%)',
               }}
             >

@@ -17,12 +17,12 @@ export function defaultFrame(label = 'Pre-Serve') {
     ball: null, // {col, row} | null - not shown until placed
     options: [], // [{id, targetId, label}] - setter's alternate reads for this step
     positions: {
-      OH1: { col: 2, row: 2 },
-      MB1: { col: 5, row: 1 },
-      OPP: { col: 9, row: 2 },
-      S: { col: 10, row: 5 },
-      OH2: { col: 1, row: 6 },
-      MB2: { col: 5, row: 6 },
+      OH1: { col: 3, row: 3 },
+      MB1: { col: 6, row: 1 },
+      OPP: { col: 11, row: 3 },
+      S: { col: 13, row: 6 },
+      OH2: { col: 1, row: 8 },
+      MB2: { col: 6, row: 8 },
     },
   };
 }
